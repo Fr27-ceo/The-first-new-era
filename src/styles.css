@@ -1,0 +1,245 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+@import "katex/dist/katex.min.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system — The first "new era". See docs/DESIGN_SYSTEM.md.
+ * Dark-only: deep black / midnight-purple surfaces, violet–indigo–electric-blue accents.
+ * All colors are oklch tokens; components use semantic utilities only.
+ */
+
+@theme inline {
+  --font-display: "Readex Pro", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans Arabic", "Readex Pro", system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-electric: var(--electric);
+  --color-indigo: var(--indigo);
+  --color-violet: var(--violet);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 1rem;
+  --background: oklch(0.12 0.025 290);
+  --foreground: oklch(0.96 0.012 290);
+  --surface: oklch(0.16 0.035 288);
+  --surface-raised: oklch(0.2 0.045 286);
+  --card: oklch(0.165 0.035 288 / 0.82);
+  --card-foreground: oklch(0.96 0.012 290);
+  --popover: oklch(0.18 0.04 288);
+  --popover-foreground: oklch(0.96 0.012 290);
+  --primary: oklch(0.68 0.2 290);
+  --primary-foreground: oklch(0.99 0.005 290);
+  --secondary: oklch(0.23 0.05 285);
+  --secondary-foreground: oklch(0.94 0.02 290);
+  --muted: oklch(0.21 0.035 288);
+  --muted-foreground: oklch(0.72 0.03 290);
+  --accent: oklch(0.26 0.07 285);
+  --accent-foreground: oklch(0.97 0.01 290);
+  --destructive: oklch(0.66 0.2 22);
+  --destructive-foreground: oklch(0.98 0.01 20);
+  --success: oklch(0.75 0.16 160);
+  --warning: oklch(0.8 0.15 75);
+  --violet: oklch(0.68 0.2 295);
+  --indigo: oklch(0.6 0.2 275);
+  --electric: oklch(0.72 0.17 245);
+  --border: oklch(0.85 0.05 290 / 0.1);
+  --input: oklch(0.85 0.05 290 / 0.14);
+  --ring: oklch(0.7 0.18 280);
+  --chart-1: var(--violet);
+  --chart-2: var(--electric);
+  --chart-3: var(--indigo);
+  --chart-4: var(--success);
+  --chart-5: var(--warning);
+  --sidebar: oklch(0.14 0.03 289 / 0.9);
+  --sidebar-foreground: oklch(0.9 0.02 290);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.24 0.06 286);
+  --sidebar-accent-foreground: oklch(0.98 0.01 290);
+  --sidebar-border: oklch(0.85 0.05 290 / 0.08);
+  --sidebar-ring: var(--ring);
+
+  --gradient-brand: linear-gradient(135deg, var(--violet), var(--indigo) 55%, var(--electric));
+  --gradient-edge: linear-gradient(140deg, oklch(0.62 0.2 265 / 0.9), oklch(0.7 0.2 300 / 0.9));
+  --gradient-tile: linear-gradient(160deg, oklch(0.26 0.08 285), oklch(0.17 0.05 290));
+  --shadow-glow: 0 0 0 1px oklch(0.7 0.2 285 / 0.18), 0 12px 40px -12px oklch(0.6 0.22 285 / 0.45);
+  --shadow-card: 0 1px 0 0 oklch(1 0 0 / 0.04) inset, 0 20px 50px -30px oklch(0 0 0 / 0.8);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .katex {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-size: 1.1em;
+  }
+}
+
+/* Ambient background light — kept behind content, slow, disabled for reduced motion */
+@utility ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(45rem 30rem at 85% -10%, oklch(0.45 0.2 295 / 0.35), transparent 60%),
+    radial-gradient(40rem 28rem at 0% 110%, oklch(0.45 0.18 255 / 0.28), transparent 60%),
+    radial-gradient(30rem 20rem at 40% 40%, oklch(0.3 0.12 280 / 0.18), transparent 70%);
+  animation: ambient-drift 28s ease-in-out infinite alternate;
+}
+
+@utility surface-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(10px);
+}
+
+@utility glow-edge {
+  box-shadow: var(--shadow-glow);
+}
+
+@utility text-gradient {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-brand {
+  background: var(--gradient-brand);
+}
+
+@utility bg-tile {
+  background: var(--gradient-tile);
+}
+
+@utility press {
+  transition: transform 160ms var(--ease-out), background-color 200ms, border-color 200ms, box-shadow 200ms;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@utility animate-rise {
+  animation: rise 520ms var(--ease-out) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ambient-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-2%, 2%, 0) scale(1.05); }
+}
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@utility animate-float {
+  animation: float-soft 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+
+/* الرسومات التفاعلية للدروس */
+.lab {
+  --tx: var(--foreground);
+  --mu: var(--muted-foreground);
+  --bd: var(--border);
+  --sf: var(--surface);
+  --ac: var(--primary);
+  --ac2: var(--electric);
+}
+.lab-stage { background: var(--surface); }
+.lab svg.dg { width: 100%; height: auto; max-height: 290px; direction: ltr; display: block; }
+.lab .w1 { fill: none; stroke: var(--tx); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lab .d { stroke: var(--mu); stroke-dasharray: 4 3; stroke-width: 1.3; }
+.lab .bgc { fill: var(--sf); }
+.lab .t { fill: var(--tx); font-size: 11.5px; font-family: var(--font-sans); unicode-bidi: plaintext; }
+.lab .m { fill: var(--mu); font-size: 11px; font-family: var(--font-sans); unicode-bidi: plaintext; }
+.lab .mc { text-anchor: middle; dominant-baseline: central; }
+.lab .fl { fill: none; stroke: var(--ac); stroke-width: 3.4; stroke-linecap: round; stroke-dasharray: 1 11; animation: lab-flow linear infinite; }
+.lab .fl.rv { animation-direction: reverse; }
+@keyframes lab-flow { to { stroke-dashoffset: -12; } }
+@media (prefers-reduced-motion: reduce) { .lab .fl { animation: none; } }
