@@ -16,10 +16,14 @@ function Home() {
             تعلّم الفيزياء والكيمياء <span className="text-gradient">بطريقة تفاعلية</span>
           </h1>
           <p className="text-muted-foreground">
-            منصة لطلاب الثانوية العامة في مصر: دروس مبسطة ورسوم تفاعلية وتدريب يتكيف مع مستواك ومسابقات بين الطلاب.
+            منصة لطلاب الثانوية العامة في مصر: دروس مبسطة ورسوم تفاعلية وتدريب يتكيف مع مستواك
+            ومسابقات بين الطلاب.
           </p>
         </div>
-        <Link to="/auth" className="press inline-block rounded-xl bg-brand px-8 py-3 font-medium text-primary-foreground">
+        <Link
+          to="/auth"
+          className="press inline-block rounded-xl bg-brand px-8 py-3 font-medium text-primary-foreground"
+        >
           ابدأ الآن
         </Link>
       </main>

@@ -3,7 +3,13 @@ export type DuelMode = "points" | "speed" | "penalties";
 export type PackScope = "subject" | "unit" | "lesson";
 export type GhostLevel = "beginner" | "pro" | "champion";
 
-export type Pack = { scope: PackScope; id: string | null; title: string; group: string; count: number };
+export type Pack = {
+  scope: PackScope;
+  id: string | null;
+  title: string;
+  group: string;
+  count: number;
+};
 
 export type Round = {
   index: number;
@@ -40,9 +46,26 @@ export type DuelState = {
 };
 
 export const MODES: { key: DuelMode; label: string; rules: string; min: number }[] = [
-  { key: "points", label: "النقاط", min: 7, rules: "سبعة أسئلة تظهر للطرفين معًا، 20 ثانية لكل سؤال. الإجابة الصحيحة 100 نقطة ومعها مكافأة سرعة حتى 50." },
-  { key: "speed", label: "السرعة", min: 5, rules: "خمسة أسئلة يحلها كل طالب بسرعته. يفوز صاحب أقل زمن معدّل، وكل خطأ يضيف 5 ثوانٍ." },
-  { key: "penalties", label: "ضربات الجزاء", min: 5, rules: "خمس ركلات، والإجابة الصحيحة هدف. إن تعادلتما يبدأ موت مفاجئ بحد أقصى ثلاث ركلات إضافية." },
+  {
+    key: "points",
+    label: "النقاط",
+    min: 7,
+    rules:
+      "سبعة أسئلة تظهر للطرفين معًا، 20 ثانية لكل سؤال. الإجابة الصحيحة 100 نقطة ومعها مكافأة سرعة حتى 50.",
+  },
+  {
+    key: "speed",
+    label: "السرعة",
+    min: 5,
+    rules: "خمسة أسئلة يحلها كل طالب بسرعته. يفوز صاحب أقل زمن معدّل، وكل خطأ يضيف 5 ثوانٍ.",
+  },
+  {
+    key: "penalties",
+    label: "ضربات الجزاء",
+    min: 5,
+    rules:
+      "خمس ركلات، والإجابة الصحيحة هدف. إن تعادلتما يبدأ موت مفاجئ بحد أقصى ثلاث ركلات إضافية.",
+  },
 ];
 
 export const GHOST_LEVELS: { key: GhostLevel; label: string }[] = [

@@ -3,7 +3,17 @@ import katex from "katex";
 import { cn } from "@/lib/utils";
 import { AppIcon, type AppIconName } from "@/components/icons/AppIcon";
 
-export function PageHeader({ title, subtitle, icon, actions }: { title: string; subtitle?: string | undefined; icon?: AppIconName; actions?: ReactNode }) {
+export function PageHeader({
+  title,
+  subtitle,
+  icon,
+  actions,
+}: {
+  title: string;
+  subtitle?: string | undefined;
+  icon?: AppIconName;
+  actions?: ReactNode;
+}) {
   return (
     <header className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 animate-rise">
       <div className="flex min-w-0 items-center gap-3">
@@ -35,9 +45,23 @@ const toneClass: Record<Tone, string> = {
   verified: "border-success/30 bg-success/10 text-success",
   setup: "border-destructive/30 bg-destructive/10 text-destructive",
 };
-export function StatusBadge({ tone, children, className }: { tone: Tone; children?: ReactNode; className?: string }) {
+export function StatusBadge({
+  tone,
+  children,
+  className,
+}: {
+  tone: Tone;
+  children?: ReactNode;
+  className?: string;
+}) {
   return (
-    <span className={cn("inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium", toneClass[tone], className)}>
+    <span
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+        toneClass[tone],
+        className,
+      )}
+    >
       {children ?? toneText[tone]}
     </span>
   );
@@ -47,7 +71,17 @@ export function Card({ className, children }: { className?: string; children: Re
   return <section className={cn("surface-card p-5", className)}>{children}</section>;
 }
 
-export function EmptyState({ icon, title, body, action }: { icon: AppIconName; title: string; body: string; action?: ReactNode }) {
+export function EmptyState({
+  icon,
+  title,
+  body,
+  action,
+}: {
+  icon: AppIconName;
+  title: string;
+  body: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
       <AppIcon name={icon} tile size={56} className="animate-float" />
@@ -61,13 +95,25 @@ export function EmptyState({ icon, title, body, action }: { icon: AppIconName; t
 export function MathTex({ tex, block = false }: { tex: string; block?: boolean }) {
   const html = katex.renderToString(tex, { throwOnError: false, displayMode: block });
   return block ? (
-    <div dir="ltr" className="overflow-x-auto rounded-xl bg-muted/60 px-4 py-3 text-center" dangerouslySetInnerHTML={{ __html: html }} />
+    <div
+      dir="ltr"
+      className="overflow-x-auto rounded-xl bg-muted/60 px-4 py-3 text-center"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   ) : (
     <span dangerouslySetInnerHTML={{ __html: html }} />
   );
 }
 
-export function ProgressRing({ value, size = 88, label }: { value: number; size?: number; label?: string }) {
+export function ProgressRing({
+  value,
+  size = 88,
+  label,
+}: {
+  value: number;
+  size?: number;
+  label?: string;
+}) {
   const r = (size - 10) / 2;
   const c = 2 * Math.PI * r;
   const v = Math.max(0, Math.min(1, value));
@@ -80,7 +126,14 @@ export function ProgressRing({ value, size = 88, label }: { value: number; size?
             <stop offset="1" stopColor="var(--electric)" />
           </linearGradient>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--muted)" strokeWidth="8" fill="none" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="var(--muted)"
+          strokeWidth="8"
+          fill="none"
+        />
         <circle
           cx={size / 2}
           cy={size / 2}

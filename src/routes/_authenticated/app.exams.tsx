@@ -1,0 +1,203 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Card, PageHeader } from "@/components/common";
+import { generateAiExam, type AiExamQuestion } from "@/features/exams/exams.functions";
+
+export const Route = createFileRoute("/_authenticated/app/exams")({
+  head: () => ({
+    meta: [
+      { title: "الامتحانات — العصر الجديد الأول" },
+      {
+        name: "description",
+        content: "اختبر نفسك بامتحانات متجددة يولّدها الذكاء الاصطناعي حسب مستواك.",
+      },
+    ],
+  }),
+  component: ExamsPage,
+});
+
+function ExamsPage() {
+  const [subject, setSubject] = useState<"physics" | "chemistry">("physics");
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [count, setCount] = useState<number>(5);
+  const [topic, setTopic] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const [examTitle, setExamTitle] = useState("");
+  const [questions, setQuestions] = useState<AiExamQuestion[]>([]);
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  async function startExam(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const res = await generateAiExam({
+        data: { subject, difficulty, count, topic: topic.trim() || undefined },
+      });
+      if (!res.ok) {
+        toast.error(res.message);
+        return;
+      }
+      setExamTitle(res.examTitle);
+      setQuestions(res.questions);
+      setAnswers({});
+      setSubmitted(false);
+    } catch {
+      toast.error("تعذّر إنشاء الامتحان. حاول مجددًا.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const score = questions.reduce((acc, q) => (answers[q.id] === q.correctIndex ? acc + 1 : acc), 0);
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="الامتحانات"
+        subtitle="اختبر نفسك بامتحان يولّده الذكاء الاصطناعي بأسئلة جديدة في كل مرة."
+        icon="exams"
+      />
+
+      <Card className="p-5">
+        <form onSubmit={startExam} className="grid gap-4 sm:grid-cols-4">
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">المادة</span>
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value as "physics" | "chemistry")}
+              className="w-full rounded-xl border border-input bg-muted/60 px-3 py-2.5 text-sm"
+            >
+              <option value="physics">الفيزياء</option>
+              <option value="chemistry">الكيمياء</option>
+            </select>
+          </label>
+
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">المستوى</span>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as "easy" | "medium" | "hard")}
+              className="w-full rounded-xl border border-input bg-muted/60 px-3 py-2.5 text-sm"
+            >
+              <option value="easy">تمهيدي</option>
+              <option value="medium">قياسي (ثانوية عامة)</option>
+              <option value="hard">متفوقين</option>
+            </select>
+          </label>
+
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">عدد الأسئلة</span>
+            <select
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+              className="w-full rounded-xl border border-input bg-muted/60 px-3 py-2.5 text-sm"
+            >
+              <option value={3}>3 أسئلة</option>
+              <option value={5}>5 أسئلة</option>
+              <option value={10}>10 أسئلة</option>
+            </select>
+          </label>
+
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">موضوع محدد (اختياري)</span>
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="مثال: قانون أوم، الحث..."
+              className="w-full rounded-xl border border-input bg-muted/60 px-3 py-2.5 text-sm"
+            />
+          </label>
+
+          <div className="sm:col-span-4">
+            <button
+              type="submit"
+              disabled={busy}
+              className="press rounded-xl bg-brand px-6 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            >
+              {busy ? "جاري توليد امتحان جديد..." : "إنشاء امتحان جديد"}
+            </button>
+          </div>
+        </form>
+      </Card>
+
+      {questions.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-xl font-semibold">{examTitle}</h2>
+            {submitted && (
+              <span className="rounded-xl bg-accent px-4 py-1.5 text-sm font-semibold">
+                النتيجة: {score} / {questions.length}
+              </span>
+            )}
+          </div>
+
+          {questions.map((q, idx) => {
+            const chosen = answers[q.id];
+            return (
+              <Card key={q.id} className="space-y-4 p-5">
+                <p className="font-medium leading-relaxed">
+                  {idx + 1}. {q.prompt}
+                </p>
+
+                {q.svgDiagram && (
+                  <div
+                    className="overflow-x-auto rounded-xl border border-border bg-background/60 p-3"
+                    dangerouslySetInnerHTML={{ __html: q.svgDiagram }}
+                  />
+                )}
+
+                <div className="grid gap-2.5 sm:grid-cols-2">
+                  {q.options.map((opt, optIdx) => {
+                    const isSelected = chosen === optIdx;
+                    const isCorrect = q.correctIndex === optIdx;
+                    let stateClass = "border-border hover:border-primary/60";
+                    if (submitted) {
+                      if (isCorrect) stateClass = "border-success bg-success/10 text-success";
+                      else if (isSelected && !isCorrect)
+                        stateClass = "border-destructive bg-destructive/10 text-destructive";
+                    } else if (isSelected) {
+                      stateClass = "border-primary bg-primary/10";
+                    }
+
+                    return (
+                      <button
+                        key={optIdx}
+                        type="button"
+                        disabled={submitted}
+                        onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: optIdx }))}
+                        className={`rounded-xl border px-4 py-3 text-start text-sm transition-colors ${stateClass}`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {submitted && (
+                  <p className="rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
+                    <strong className="text-foreground">التفسير: </strong>
+                    {q.explanation}
+                  </p>
+                )}
+              </Card>
+            );
+          })}
+
+          {!submitted && (
+            <button
+              type="button"
+              onClick={() => setSubmitted(true)}
+              className="press rounded-xl bg-brand px-6 py-3 font-medium text-primary-foreground"
+            >
+              تصحيح الامتحان
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

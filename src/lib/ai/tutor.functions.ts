@@ -34,41 +34,118 @@ export const askTutor = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<TutorResult> => {
     const { resolveProvider, AI_LIMITS } = await import("./config.server");
     const { createClaudeProvider, AiProviderError } = await import("./claude-adapter.server");
+    const { createGeminiProvider } = await import("./gemini-adapter.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const choice = resolveProvider();
-    if (choice.kind === "none") return { ok: false, code: "not_configured", message: "المساعد الذكي يحتاج إلى إعداد مزوّد الذكاء الاصطناعي أولًا." };
+    if (choice.kind === "none")
+      return {
+        ok: false,
+        code: "not_configured",
+        message: "المساعد الذكي يحتاج إلى إعداد مزوّد الذكاء الاصطناعي أولًا.",
+      };
 
     const last = data.messages[data.messages.length - 1]!;
     if (last.role !== "user" || last.content.length > AI_LIMITS.maxMessageChars)
-      return { ok: false, code: "provider_error", message: `الرسالة طويلة جدًا (الحد ${AI_LIMITS.maxMessageChars} حرف).` };
+      return {
+        ok: false,
+        code: "provider_error",
+        message: `الرسالة طويلة جدًا (الحد ${AI_LIMITS.maxMessageChars} حرف).`,
+      };
 
     const since = new Date(Date.now() - 3_600_000).toISOString();
-    const { count } = await supabaseAdmin.from("ai_interactions").select("id", { count: "exact", head: true }).eq("user_id", context.userId).gte("created_at", since);
-    if ((count ?? 0) >= AI_LIMITS.requestsPerHour) return { ok: false, code: "rate_limited", message: "وصلت للحد المسموح من الأسئلة هذه الساعة. حاول لاحقًا." };
+    const { count } = await supabaseAdmin
+      .from("ai_interactions")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", context.userId)
+      .gte("created_at", since);
+    if ((count ?? 0) >= AI_LIMITS.requestsPerHour)
+      return {
+        ok: false,
+        code: "rate_limited",
+        message: "وصلت للحد المسموح من الأسئلة هذه الساعة. حاول لاحقًا.",
+      };
 
-    const subject = data.subject === "physics" ? "الفيزياء" : data.subject === "chemistry" ? "الكيمياء" : "الفيزياء والكيمياء";
+    // جلب بيانات الطالب للتكيّف مع مستواه ونقاط ضعفه
+    let studentContext = "";
+    try {
+      const [{ data: xpRows }, { data: streakRow }] = await Promise.all([
+        supabaseAdmin.from("xp_transactions").select("amount").eq("user_id", context.userId),
+        supabaseAdmin
+          .from("streaks")
+          .select("current_streak")
+          .eq("user_id", context.userId)
+          .maybeSingle(),
+      ]);
+      const totalXp = (xpRows ?? []).reduce((sum, r) => sum + (r.amount ?? 0), 0);
+      const streak = streakRow?.current_streak ?? 0;
+      studentContext = `بيانات الطالب الحالية: إجمالي نقاط الخبرة ${totalXp} XP، سلسلة الالتزام اليومي ${streak} أيام. كيّف مستوى الشرح والأمثلة لتناسب مستواه.`;
+    } catch {
+      // تجاهل في حال عدم توفر قاعدة البيانات
+    }
+
+    const subject =
+      data.subject === "physics"
+        ? "الفيزياء"
+        : data.subject === "chemistry"
+          ? "الكيمياء"
+          : "الفيزياء والكيمياء";
     const system = [
-      `أنت مدرس مساعد لطلاب الصف الثالث الثانوي في مصر في مادة ${subject}.`,
+      `أنت مدرس مساعد ذكي متكيف لطلاب الصف الثالث الثانوي في مصر في مادة ${subject}.`,
+      studentContext,
       "أجب بالعربية الفصحى المبسطة. اكتب المعادلات بصيغة LaTeX بين $...$.",
       STYLE[data.style],
-      data.length === "concise" ? "اجعل الإجابة مختصرة (فقرة أو فقرتان)." : "قدّم شرحًا مفصلًا منظمًا بعناوين قصيرة.",
+      data.length === "concise"
+        ? "اجعل الإجابة مختصرة (فقرة أو فقرتان)."
+        : "قدّم شرحًا مفصلًا منظمًا بعناوين قصيرة.",
+      'إذا طلب الطالب رسمًا توضيحيًا أو كان المفهوم يحتاج إلى رسم (مثل دائرة كهربائية، مجال مغناطيسي، موجة، أو رابطة كيميائية)، يمكنك استخراج رسم توضيحي بصيغة SVG داخل كتلة ```svg ... ``` بأبعاد viewBox="0 0 400 220" وبألوان واضحة مناسبة للوضع الداكن (مثل #a78bfa و #38bdf8 و #f8fafc).',
       "مهم: شرحك مولَّد وليس من الكتاب المدرسي الرسمي. لا تدّعِ أبدًا أن إجابتك رسمية أو من منهج الوزارة، وإن لم تكن متأكدًا من تفصيلة في المنهج فقل ذلك صراحة ونبّه الطالب للرجوع لمعلمه أو الكتاب المعتمد.",
-    ].join("\n");
+    ]
+      .filter(Boolean)
+      .join("\n");
 
-    const provider = createClaudeProvider(choice);
+    const provider =
+      choice.kind === "gemini" ? createGeminiProvider(choice) : createClaudeProvider(choice);
     const history = data.messages.slice(-AI_LIMITS.maxHistoryMessages);
     try {
       const text = await provider.generate(system, history, AI_LIMITS.maxOutputTokens);
-      await supabaseAdmin.from("ai_interactions").insert({ user_id: context.userId, provider: provider.name, model: provider.model, prompt_chars: last.content.length, response_chars: text.length, status: "ok" });
+      await supabaseAdmin.from("ai_interactions").insert({
+        user_id: context.userId,
+        provider: provider.name,
+        model: provider.model,
+        prompt_chars: last.content.length,
+        response_chars: text.length,
+        status: "ok",
+      });
       return { ok: true, text, provider: provider.name, model: provider.model };
     } catch (e) {
       const status = e instanceof AiProviderError ? e.status : 500;
       console.error("ai tutor error", status);
-      await supabaseAdmin.from("ai_interactions").insert({ user_id: context.userId, provider: provider.name, model: provider.model, prompt_chars: last.content.length, status: `error_${status}` });
-      if (status === 429) return { ok: false, code: "rate_limited", message: "الخدمة مشغولة الآن. حاول بعد قليل." };
-      if (status === 402) return { ok: false, code: "credits", message: "رصيد الذكاء الاصطناعي نفد. يحتاج صاحب المنصة لإضافة رصيد." };
-      if (status === 401 || status === 403) return { ok: false, code: "denied", message: "تعذّر الوصول لمزوّد الذكاء الاصطناعي أو رُفض الطلب." };
-      return { ok: false, code: "provider_error", message: "حدث خطأ أثناء توليد الإجابة. حاول مرة أخرى." };
+      await supabaseAdmin.from("ai_interactions").insert({
+        user_id: context.userId,
+        provider: provider.name,
+        model: provider.model,
+        prompt_chars: last.content.length,
+        status: `error_${status}`,
+      });
+      if (status === 429)
+        return { ok: false, code: "rate_limited", message: "الخدمة مشغولة الآن. حاول بعد قليل." };
+      if (status === 402)
+        return {
+          ok: false,
+          code: "credits",
+          message: "رصيد الذكاء الاصطناعي نفد. يحتاج صاحب المنصة لإضافة رصيد.",
+        };
+      if (status === 401 || status === 403)
+        return {
+          ok: false,
+          code: "denied",
+          message: "تعذّر الوصول لمزوّد الذكاء الاصطناعي أو رُفض الطلب.",
+        };
+      return {
+        ok: false,
+        code: "provider_error",
+        message: "حدث خطأ أثناء توليد الإجابة. حاول مرة أخرى.",
+      };
     }
   });

@@ -12,7 +12,11 @@ export type TutorRequest = {
 
 export type TutorResult =
   | { ok: true; text: string; provider: string; model: string }
-  | { ok: false; code: "not_configured" | "rate_limited" | "provider_error" | "denied" | "credits"; message: string };
+  | {
+      ok: false;
+      code: "not_configured" | "rate_limited" | "provider_error" | "denied" | "credits";
+      message: string;
+    };
 
 export interface AiTutorProvider {
   name: string;

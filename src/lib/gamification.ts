@@ -9,7 +9,12 @@ export const MIN_ANSWERS_FOR_QUALIFYING_SESSION = 2;
 
 /** Calendar day in Cairo time (YYYY-MM-DD) — streak days follow students' local day. */
 export function cairoDay(date: Date): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Cairo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 }
 
 function dayDiff(a: string, b: string): number {
@@ -33,8 +38,14 @@ export function displayedStreak(s: StreakState, today: string): number {
 }
 
 /** XP for a finished practice session. Incomplete sessions earn nothing. */
-export function sessionXp(input: { totalQuestions: number; answered: number; correct: number; xpPerQuestion: number[] }): number {
-  if (input.answered < input.totalQuestions || input.answered < MIN_ANSWERS_FOR_QUALIFYING_SESSION) return 0;
+export function sessionXp(input: {
+  totalQuestions: number;
+  answered: number;
+  correct: number;
+  xpPerQuestion: number[];
+}): number {
+  if (input.answered < input.totalQuestions || input.answered < MIN_ANSWERS_FOR_QUALIFYING_SESSION)
+    return 0;
   const base = input.xpPerQuestion.slice(0, input.correct).reduce((a, b) => a + b, 0);
   return base + (input.correct === input.totalQuestions ? PERFECT_SESSION_BONUS : 0);
 }

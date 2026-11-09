@@ -4,12 +4,17 @@ import type { AiTutorProvider, ChatMessage } from "./types";
 import type { ProviderChoice } from "./config.server";
 
 export class AiProviderError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
     super(message);
   }
 }
 
-export function createClaudeProvider(choice: Exclude<ProviderChoice, { kind: "none" }>): AiTutorProvider {
+export function createClaudeProvider(
+  choice: Exclude<ProviderChoice, { kind: "none" }>,
+): AiTutorProvider {
   const anthropic = createAnthropic({ apiKey: choice.apiKey });
 
   return {
@@ -27,7 +32,7 @@ export function createClaudeProvider(choice: Exclude<ProviderChoice, { kind: "no
           failure = error;
         },
       });
-      const text = await result.text.catch((e: unknown) => {
+      const text = await Promise.resolve(result.text).catch((e: unknown) => {
         failure ??= e;
         return "";
       });
@@ -35,8 +40,9 @@ export function createClaudeProvider(choice: Exclude<ProviderChoice, { kind: "no
         const status = (failure as { statusCode?: number }).statusCode ?? 500;
         throw new AiProviderError(status, String((failure as Error)?.message ?? failure));
       }
-      const finish = await result.finishReason.catch(() => undefined);
-      if (!text && (finish === "content-filter" || finish === "other")) throw new AiProviderError(403, "refusal");
+      const finish = await Promise.resolve(result.finishReason).catch(() => undefined);
+      if (!text && (finish === "content-filter" || finish === "other"))
+        throw new AiProviderError(403, "refusal");
       return text;
     },
   };

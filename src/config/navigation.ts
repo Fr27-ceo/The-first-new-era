@@ -4,6 +4,7 @@ export type NavItem = {
   to:
     | "/app"
     | "/app/subjects"
+    | "/app/exams"
     | "/app/assistant"
     | "/app/competition"
     | "/app/community"
@@ -19,6 +20,7 @@ export type NavItem = {
 export const primaryNav: NavItem[] = [
   { to: "/app", label: "الرئيسية", icon: "home", exact: true },
   { to: "/app/subjects", label: "المواد", icon: "lessons" },
+  { to: "/app/exams", label: "الامتحانات", icon: "exams" },
   { to: "/app/assistant", label: "المساعد الذكي", icon: "assistant" },
   { to: "/app/competition", label: "المنافسة", icon: "competition" },
   { to: "/app/community", label: "المجتمع", icon: "community" },

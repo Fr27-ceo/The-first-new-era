@@ -3,7 +3,12 @@ import { Card, PageHeader, StatusBadge } from "@/components/common";
 import { AppIcon } from "@/components/icons/AppIcon";
 
 export const Route = createFileRoute("/_authenticated/app/community")({
-  head: () => ({ meta: [{ title: "المجتمع — العصر الجديد الأول" }, { name: "description", content: "مساحات نقاش تعليمية — قريبًا." }] }),
+  head: () => ({
+    meta: [
+      { title: "المجتمع — العصر الجديد الأول" },
+      { name: "description", content: "مساحات نقاش تعليمية — قريبًا." },
+    ],
+  }),
   component: Community,
 });
 
@@ -16,7 +21,12 @@ const spaces = [
 function Community() {
   return (
     <div>
-      <PageHeader title="المجتمع" subtitle="لن يُفعّل النشر قبل وضع أدوات الإشراف والإبلاغ وحماية الخصوصية." icon="community" actions={<StatusBadge tone="soon" />} />
+      <PageHeader
+        title="المجتمع"
+        subtitle="لن يُفعّل النشر قبل وضع أدوات الإشراف والإبلاغ وحماية الخصوصية."
+        icon="community"
+        actions={<StatusBadge tone="soon" />}
+      />
       <div className="grid gap-4 sm:grid-cols-3">
         {spaces.map((s) => (
           <Card key={s.name} className="opacity-80">

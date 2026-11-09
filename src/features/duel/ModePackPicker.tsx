@@ -24,7 +24,12 @@ export function ModePackPicker({ mode, onMode, packs, packKey, onPack }: Props) 
             role="radio"
             aria-checked={mode === m.key}
             onClick={() => onMode(m.key)}
-            className={cn("rounded-xl border px-2 py-3 text-sm font-medium transition-colors", mode === m.key ? "border-primary bg-primary/15" : "border-border text-muted-foreground hover:text-foreground")}
+            className={cn(
+              "rounded-xl border px-2 py-3 text-sm font-medium transition-colors",
+              mode === m.key
+                ? "border-primary bg-primary/15"
+                : "border-border text-muted-foreground hover:text-foreground",
+            )}
           >
             {m.label}
           </button>
@@ -34,14 +39,20 @@ export function ModePackPicker({ mode, onMode, packs, packKey, onPack }: Props) 
 
       <label className="block text-sm">
         <span className="mb-1 block text-muted-foreground">الباك (الأسئلة المستخدمة)</span>
-        <select value={packKey} onChange={(e) => onPack(e.target.value)} className="w-full rounded-xl border border-input bg-muted/60 px-3 py-3 text-sm">
+        <select
+          value={packKey}
+          onChange={(e) => onPack(e.target.value)}
+          className="w-full rounded-xl border border-input bg-muted/60 px-3 py-3 text-sm"
+        >
           {groups.map((g) => (
             <optgroup key={g} label={g}>
-              {packs.filter((p) => p.group === g).map((p) => (
-                <option key={packKeyOf(p)} value={packKeyOf(p)} disabled={p.count < min}>
-                  {p.title} ({p.count} سؤال){p.count < min ? " — لا يكفي لهذا الوضع" : ""}
-                </option>
-              ))}
+              {packs
+                .filter((p) => p.group === g)
+                .map((p) => (
+                  <option key={packKeyOf(p)} value={packKeyOf(p)} disabled={p.count < min}>
+                    {p.title} ({p.count} سؤال){p.count < min ? " — لا يكفي لهذا الوضع" : ""}
+                  </option>
+                ))}
             </optgroup>
           ))}
         </select>

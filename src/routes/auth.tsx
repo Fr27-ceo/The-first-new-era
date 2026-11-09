@@ -44,7 +44,10 @@ function AuthPage() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name.trim() }, emailRedirectTo: window.location.origin + "/app" },
+      options: {
+        data: { full_name: name.trim() },
+        emailRedirectTo: window.location.origin + "/app",
+      },
     });
     setBusy(false);
     if (error) {
@@ -65,17 +68,50 @@ function AuthPage() {
         <form onSubmit={submit} className="space-y-3">
           {mode === "up" && (
             <div className="space-y-1">
-              <input type="text" required maxLength={20} placeholder="الاسم المستعار" value={name} onChange={(e) => setName(e.target.value)} className={input} />
-              <p className="text-xs text-muted-foreground">يظهر في لوحة المتصدرين. لا تكتب اسمك الحقيقي.</p>
+              <input
+                type="text"
+                required
+                maxLength={20}
+                placeholder="الاسم المستعار"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={input}
+              />
+              <p className="text-xs text-muted-foreground">
+                يظهر في لوحة المتصدرين. لا تكتب اسمك الحقيقي.
+              </p>
             </div>
           )}
-          <input type="email" required placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)} className={input} dir="ltr" />
-          <input type="password" required minLength={8} placeholder="كلمة المرور (8 أحرف على الأقل)" value={password} onChange={(e) => setPassword(e.target.value)} className={input} dir="ltr" />
-          <button disabled={busy} className="press w-full rounded-xl bg-brand py-3 font-medium text-primary-foreground disabled:opacity-50">
+          <input
+            type="email"
+            required
+            placeholder="البريد الإلكتروني"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={input}
+            dir="ltr"
+          />
+          <input
+            type="password"
+            required
+            minLength={8}
+            placeholder="كلمة المرور (8 أحرف على الأقل)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={input}
+            dir="ltr"
+          />
+          <button
+            disabled={busy}
+            className="press w-full rounded-xl bg-brand py-3 font-medium text-primary-foreground disabled:opacity-50"
+          >
             {mode === "in" ? "دخول" : "إنشاء الحساب"}
           </button>
         </form>
-        <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="w-full text-sm text-primary">
+        <button
+          onClick={() => setMode(mode === "in" ? "up" : "in")}
+          className="w-full text-sm text-primary"
+        >
           {mode === "in" ? "ليس لديك حساب؟ أنشئ حسابًا" : "لديك حساب؟ سجّل الدخول"}
         </button>
       </div>

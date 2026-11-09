@@ -2,15 +2,34 @@
 export const AI_LIMITS = {
   maxMessageChars: 2000,
   maxHistoryMessages: 12,
-  maxOutputTokens: 1500,
+  maxOutputTokens: 2500,
   requestsPerHour: 30,
 };
 
-export type ProviderChoice = { kind: "anthropic"; apiKey: string; model: string } | { kind: "none" };
+export type ProviderChoice =
+  | { kind: "gemini"; apiKey: string; model: string }
+  | { kind: "anthropic"; apiKey: string; model: string }
+  | { kind: "none" };
 
-/** يعمل المساعد فقط عند وجود ANTHROPIC_API_KEY في ملف .env */
+/** يفضّل Gemini عند وجود GEMINI_API_KEY، أو Anthropic عند وجود ANTHROPIC_API_KEY */
 export function resolveProvider(): ProviderChoice {
-  const apiKey = process.env["ANTHROPIC_API_KEY"];
-  if (!apiKey) return { kind: "none" };
-  return { kind: "anthropic", apiKey, model: process.env["ANTHROPIC_MODEL"] || "claude-sonnet-5-5" };
+  const geminiKey = process.env["GEMINI_API_KEY"];
+  if (geminiKey) {
+    return {
+      kind: "gemini",
+      apiKey: geminiKey,
+      model: process.env["GEMINI_MODEL"] || "gemini-3.8-flash",
+    };
+  }
+
+  const anthropicKey = process.env["ANTHROPIC_API_KEY"];
+  if (anthropicKey) {
+    return {
+      kind: "anthropic",
+      apiKey: anthropicKey,
+      model: process.env["ANTHROPIC_MODEL"] || "claude-sonnet-5-5",
+    };
+  }
+
+  return { kind: "none" };
 }

@@ -21,22 +21,40 @@ export type AppIconName =
   | "achievements"
   | "mistakes"
   | "profile"
-  | "more";
+  | "more"
+  | "exams";
 
 const glyphs: Record<AppIconName, (fill: string) => ReactNode> = {
   home: (f) => (
     <>
-      <path d="M3.2 11.2 12 3.8l8.8 7.4" fill="none" stroke={f} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3.2 11.2 12 3.8l8.8 7.4"
+        fill="none"
+        stroke={f}
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <rect x="16" y="4.5" width="2.4" height="4.2" rx="0.8" fill={f} />
-      <path d="M5.6 11.6 12 6.4l6.4 5.2v7.6a1.4 1.4 0 0 1-1.4 1.4h-3.1v-5h-3.8v5H7a1.4 1.4 0 0 1-1.4-1.4z" fill={f} />
+      <path
+        d="M5.6 11.6 12 6.4l6.4 5.2v7.6a1.4 1.4 0 0 1-1.4 1.4h-3.1v-5h-3.8v5H7a1.4 1.4 0 0 1-1.4-1.4z"
+        fill={f}
+      />
     </>
   ),
   community: (f) => (
     <>
       <circle cx="9" cy="8.2" r="3.4" fill={f} />
-      <path d="M2.8 19.2c0-3.4 2.8-5.6 6.2-5.6s6.2 2.2 6.2 5.6c0 .6-.5 1-1 1H3.8c-.6 0-1-.4-1-1z" fill={f} />
+      <path
+        d="M2.8 19.2c0-3.4 2.8-5.6 6.2-5.6s6.2 2.2 6.2 5.6c0 .6-.5 1-1 1H3.8c-.6 0-1-.4-1-1z"
+        fill={f}
+      />
       <circle cx="16.6" cy="9" r="2.6" fill={f} opacity="0.7" />
-      <path d="M16.4 13.4c2.8 0 4.8 1.8 4.8 4.6 0 .5-.4.9-.9.9h-3.6c0-2-.6-3.8-1.9-5.1.5-.3 1-.4 1.6-.4z" fill={f} opacity="0.7" />
+      <path
+        d="M16.4 13.4c2.8 0 4.8 1.8 4.8 4.6 0 .5-.4.9-.9.9h-3.6c0-2-.6-3.8-1.9-5.1.5-.3 1-.4 1.6-.4z"
+        fill={f}
+        opacity="0.7"
+      />
     </>
   ),
   settings: (f) => (
@@ -48,14 +66,27 @@ const glyphs: Record<AppIconName, (fill: string) => ReactNode> = {
   ),
   assistant: (f) => (
     <>
-      <path d="M5 4.5h14a2 2 0 0 1 2 2v8.6a2 2 0 0 1-2 2h-6.4l-4.2 3.3c-.5.4-1.2 0-1.2-.6v-2.7H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z" fill={f} />
-      <path d="M12 7.4l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9z" fill="var(--background)" opacity="0.85" />
+      <path
+        d="M5 4.5h14a2 2 0 0 1 2 2v8.6a2 2 0 0 1-2 2h-6.4l-4.2 3.3c-.5.4-1.2 0-1.2-.6v-2.7H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z"
+        fill={f}
+      />
+      <path
+        d="M12 7.4l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9z"
+        fill="var(--background)"
+        opacity="0.85"
+      />
     </>
   ),
   competition: (f) => (
     <>
       <path d="M7 3.5h10v5.2a5 5 0 0 1-10 0z" fill={f} />
-      <path d="M7 5.2H4.3v1.6A3.6 3.6 0 0 0 7.6 10.4M17 5.2h2.7v1.6a3.6 3.6 0 0 1-3.3 3.6" fill="none" stroke={f} strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M7 5.2H4.3v1.6A3.6 3.6 0 0 0 7.6 10.4M17 5.2h2.7v1.6a3.6 3.6 0 0 1-3.3 3.6"
+        fill="none"
+        stroke={f}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
       <rect x="10.8" y="13" width="2.4" height="3.6" rx="0.6" fill={f} />
       <rect x="7.4" y="16.6" width="9.2" height="3.6" rx="1.2" fill={f} />
     </>
@@ -68,19 +99,44 @@ const glyphs: Record<AppIconName, (fill: string) => ReactNode> = {
     </>
   ),
   streak: (f) => (
-    <path d="M12.6 2.8c.4 3 2.4 4.4 3.9 6.2a7 7 0 0 1 1.9 4.9 6.4 6.4 0 0 1-12.8 0c0-2.2 1-3.9 2.4-5.2.2 1.6.9 2.7 2 3.2-.4-3.4 1-6.4 2.6-9.1zM12 20a2.8 2.8 0 0 0 2.8-2.8c0-1.6-1.2-2.6-2.4-3.8-.2 1.2-.8 1.8-1.6 2.2a2.8 2.8 0 0 0 1.2 4.4z" fill={f} fillRule="evenodd" />
+    <path
+      d="M12.6 2.8c.4 3 2.4 4.4 3.9 6.2a7 7 0 0 1 1.9 4.9 6.4 6.4 0 0 1-12.8 0c0-2.2 1-3.9 2.4-5.2.2 1.6.9 2.7 2 3.2-.4-3.4 1-6.4 2.6-9.1zM12 20a2.8 2.8 0 0 0 2.8-2.8c0-1.6-1.2-2.6-2.4-3.8-.2 1.2-.8 1.8-1.6 2.2a2.8 2.8 0 0 0 1.2 4.4z"
+      fill={f}
+      fillRule="evenodd"
+    />
   ),
   physics: (f) => (
     <>
       <circle cx="12" cy="12" r="2.4" fill={f} />
       <ellipse cx="12" cy="12" rx="9" ry="3.8" fill="none" stroke={f} strokeWidth="1.8" />
-      <ellipse cx="12" cy="12" rx="9" ry="3.8" fill="none" stroke={f} strokeWidth="1.8" transform="rotate(60 12 12)" />
-      <ellipse cx="12" cy="12" rx="9" ry="3.8" fill="none" stroke={f} strokeWidth="1.8" transform="rotate(-60 12 12)" />
+      <ellipse
+        cx="12"
+        cy="12"
+        rx="9"
+        ry="3.8"
+        fill="none"
+        stroke={f}
+        strokeWidth="1.8"
+        transform="rotate(60 12 12)"
+      />
+      <ellipse
+        cx="12"
+        cy="12"
+        rx="9"
+        ry="3.8"
+        fill="none"
+        stroke={f}
+        strokeWidth="1.8"
+        transform="rotate(-60 12 12)"
+      />
     </>
   ),
   chemistry: (f) => (
     <>
-      <path d="M9.2 3h5.6v1.8h-1v4.6l5.4 8.4A2.2 2.2 0 0 1 17.3 21H6.7a2.2 2.2 0 0 1-1.9-3.2l5.4-8.4V4.8h-1z" fill={f} />
+      <path
+        d="M9.2 3h5.6v1.8h-1v4.6l5.4 8.4A2.2 2.2 0 0 1 17.3 21H6.7a2.2 2.2 0 0 1-1.9-3.2l5.4-8.4V4.8h-1z"
+        fill={f}
+      />
       <path d="M7.6 15.6h8.8l1.6 2.6H6z" fill="var(--background)" opacity="0.35" />
     </>
   ),
@@ -93,15 +149,46 @@ const glyphs: Record<AppIconName, (fill: string) => ReactNode> = {
   practice: (f) => (
     <>
       <rect x="4" y="3" width="16" height="18" rx="2.6" fill={f} />
-      <path d="M8 9.2l1.6 1.6L12.8 7.6M8 15.2l1.6 1.6 3.2-3.2" fill="none" stroke="var(--background)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.8" />
-      <rect x="14.2" y="8.6" width="3" height="1.6" rx="0.8" fill="var(--background)" opacity="0.6" />
-      <rect x="14.2" y="14.6" width="3" height="1.6" rx="0.8" fill="var(--background)" opacity="0.6" />
+      <path
+        d="M8 9.2l1.6 1.6L12.8 7.6M8 15.2l1.6 1.6 3.2-3.2"
+        fill="none"
+        stroke="var(--background)"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.8"
+      />
+      <rect
+        x="14.2"
+        y="8.6"
+        width="3"
+        height="1.6"
+        rx="0.8"
+        fill="var(--background)"
+        opacity="0.6"
+      />
+      <rect
+        x="14.2"
+        y="14.6"
+        width="3"
+        height="1.6"
+        rx="0.8"
+        fill="var(--background)"
+        opacity="0.6"
+      />
     </>
   ),
   mistakes: (f) => (
     <>
       <path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill={f} />
-      <path d="M12 7.2v6" fill="none" stroke="var(--background)" strokeWidth="2" strokeLinecap="round" opacity="0.85" />
+      <path
+        d="M12 7.2v6"
+        fill="none"
+        stroke="var(--background)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        opacity="0.85"
+      />
       <circle cx="12" cy="16.4" r="1.2" fill="var(--background)" opacity="0.85" />
     </>
   ),
@@ -109,7 +196,11 @@ const glyphs: Record<AppIconName, (fill: string) => ReactNode> = {
     <>
       <path d="M7.4 2.8h9.2l-2 5.6H9.4z" fill={f} opacity="0.7" />
       <circle cx="12" cy="14.6" r="6.4" fill={f} />
-      <path d="M12 11l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="var(--background)" opacity="0.75" />
+      <path
+        d="M12 11l1.1 2.2 2.4.3-1.8 1.7.5 2.4-2.2-1.2-2.2 1.2.5-2.4-1.8-1.7 2.4-.3z"
+        fill="var(--background)"
+        opacity="0.75"
+      />
     </>
   ),
   profile: (f) => (
@@ -124,6 +215,17 @@ const glyphs: Record<AppIconName, (fill: string) => ReactNode> = {
       <rect x="13.1" y="3.5" width="7.4" height="7.4" rx="2.2" fill={f} opacity="0.75" />
       <rect x="3.5" y="13.1" width="7.4" height="7.4" rx="2.2" fill={f} opacity="0.75" />
       <rect x="13.1" y="13.1" width="7.4" height="7.4" rx="3.7" fill={f} />
+    </>
+  ),
+  exams: (f) => (
+    <>
+      <rect x="5" y="3.5" width="14" height="17" rx="2.2" fill="none" stroke={f} strokeWidth="2" />
+      <path
+        d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4.5"
+        stroke={f}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </>
   ),
 };
@@ -165,7 +267,10 @@ export function AppIcon({
   if (!tile) return svg;
   return (
     <span
-      className={cn("relative inline-grid shrink-0 place-items-center bg-tile glow-edge", className)}
+      className={cn(
+        "relative inline-grid shrink-0 place-items-center bg-tile glow-edge",
+        className,
+      )}
       style={{ width: size, height: size, borderRadius: size * 0.3 }}
     >
       <span

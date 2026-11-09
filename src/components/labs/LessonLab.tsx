@@ -12,7 +12,7 @@ export function LessonLab({ id }: { id: string }) {
 
 function LabView({ lab }: { lab: Lab }) {
   const [values, setValues] = useState<Record<string, number>>(() =>
-    Object.fromEntries(lab.c.map((c) => [c[0], c[5]])),
+    Object.fromEntries(lab.c.map((c: (string | number)[]) => [String(c[0]), Number(c[5])])),
   );
   const [showSteps, setShowSteps] = useState(true);
   const result = useMemo(() => lab.f(values), [lab, values]);
@@ -33,7 +33,11 @@ function LabView({ lab }: { lab: Lab }) {
           ))}
         </div>
         {showSteps && (
-          <p className="mt-2 text-xs text-muted-foreground" dir="ltr" style={{ unicodeBidi: "plaintext", textAlign: "left" }}>
+          <p
+            className="mt-2 text-xs text-muted-foreground"
+            dir="ltr"
+            style={{ unicodeBidi: "plaintext", textAlign: "left" }}
+          >
             {result.s}
           </p>
         )}
@@ -57,7 +61,11 @@ function LabView({ lab }: { lab: Lab }) {
       </div>
 
       <label className="flex items-center gap-2 text-sm text-muted-foreground">
-        <input type="checkbox" checked={showSteps} onChange={(e) => setShowSteps(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={showSteps}
+          onChange={(e) => setShowSteps(e.target.checked)}
+        />
         إظهار خطوات الحل
       </label>
       {lab.t && <p className="text-sm text-muted-foreground">{lab.t}</p>}
