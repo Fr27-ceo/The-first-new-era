@@ -7,6 +7,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { askTutor, getAiStatus } from "@/lib/ai/tutor.functions";
 import type { ChatMessage, TutorLength, TutorStyle } from "@/lib/ai/types";
+import { sanitizeSvg } from "@/lib/sanitize-svg";
 import { Card, PageHeader, SkeletonBlock, StatusBadge } from "@/components/common";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { cn } from "@/lib/utils";
@@ -69,7 +70,7 @@ function Assistant() {
     <div className="mx-auto flex max-w-4xl flex-col">
       <PageHeader
         title="المساعد الذكي"
-        subtitle="إجاباته مولَّدة بالذكاء الاصطناعي وليست بديلًا عن الكتاب المعتمد."
+        subtitle="مساعد متكيف مع مستواك يشرح المفاهيم ويستخرج الرسومات التوضيحية."
         icon="assistant"
       />
 
@@ -138,7 +139,7 @@ function Assistant() {
               <div className="flex flex-col items-center gap-3 py-10 text-center text-muted-foreground">
                 <AppIcon name="assistant" tile size={64} className="animate-float" />
                 <p className="text-sm">
-                  اسأل عن أي مفهوم في الفيزياء أو الكيمياء، أو الصق سؤالًا أخطأت فيه.
+                  اسأل عن أي مفهوم في الفيزياء أو الكيمياء، أو اطلب رسمًا توضيحيًا أو أسئلة تدريبية.
                 </p>
               </div>
             )}
@@ -156,7 +157,34 @@ function Assistant() {
                     <StatusBadge tone="ai" />
                   </div>
                   <div className="prose-sm max-w-none leading-8 [&_ol]:list-decimal [&_ol]:ps-5 [&_p]:my-2 [&_ul]:list-disc [&_ul]:ps-5">
-                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={{
+                        code({ className, children, ...props }) {
+                          const raw = String(children ?? "");
+                          const isSvgBlock =
+                            className?.includes("language-svg") ||
+                            raw.trim().toLowerCase().startsWith("<svg");
+                          if (isSvgBlock) {
+                            const safe = sanitizeSvg(raw);
+                            if (safe) {
+                              return (
+                                <div
+                                  className="my-3 overflow-x-auto rounded-2xl border border-border bg-surface/80 p-4 [&_svg]:mx-auto [&_svg]:max-h-72 [&_svg]:w-full"
+                                  dangerouslySetInnerHTML={{ __html: safe }}
+                                />
+                              );
+                            }
+                          }
+                          return (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
                       {m.content}
                     </ReactMarkdown>
                   </div>

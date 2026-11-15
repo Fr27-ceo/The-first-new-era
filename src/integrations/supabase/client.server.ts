@@ -31,6 +31,10 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+export const hasSupabaseAdminEnv = Boolean(
+  process.env["SUPABASE_URL"] && process.env["SUPABASE_SERVICE_ROLE_KEY"],
+);
+
 function createSupabaseAdminClient() {
   const SUPABASE_URL = process.env["SUPABASE_URL"] || "https://mock.supabase.co";
   const SUPABASE_SERVICE_ROLE_KEY =

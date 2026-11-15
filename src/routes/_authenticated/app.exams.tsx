@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import { toast } from "sonner";
 import { Card, PageHeader } from "@/components/common";
 import { generateAiExam, type AiExamQuestion } from "@/features/exams/exams.functions";
+import { sanitizeSvg } from "@/lib/sanitize-svg";
 
 export const Route = createFileRoute("/_authenticated/app/exams")({
   head: () => ({
@@ -18,6 +23,7 @@ export const Route = createFileRoute("/_authenticated/app/exams")({
 });
 
 function ExamsPage() {
+  const runGenerateExam = useServerFn(generateAiExam);
   const [subject, setSubject] = useState<"physics" | "chemistry">("physics");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [count, setCount] = useState<number>(5);
@@ -33,7 +39,7 @@ function ExamsPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      const res = await generateAiExam({
+      const res = await runGenerateExam({
         data: { subject, difficulty, count, topic: topic.trim() || undefined },
       });
       if (!res.ok) {
@@ -137,16 +143,20 @@ function ExamsPage() {
 
           {questions.map((q, idx) => {
             const chosen = answers[q.id];
+            const safeDiagram = q.svgDiagram ? sanitizeSvg(q.svgDiagram) : null;
             return (
-              <Card key={q.id} className="space-y-4 p-5">
-                <p className="font-medium leading-relaxed">
-                  {idx + 1}. {q.prompt}
-                </p>
+              <Card key={q.id || idx} className="space-y-4 p-5">
+                <div className="font-medium leading-relaxed [&_p]:inline">
+                  <span>{idx + 1}. </span>
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {q.prompt}
+                  </ReactMarkdown>
+                </div>
 
-                {q.svgDiagram && (
+                {safeDiagram && (
                   <div
-                    className="overflow-x-auto rounded-xl border border-border bg-background/60 p-3"
-                    dangerouslySetInnerHTML={{ __html: q.svgDiagram }}
+                    className="overflow-x-auto rounded-xl border border-border bg-background/60 p-3 [&_svg]:mx-auto [&_svg]:max-h-64 [&_svg]:w-full"
+                    dangerouslySetInnerHTML={{ __html: safeDiagram }}
                   />
                 )}
 
@@ -169,19 +179,23 @@ function ExamsPage() {
                         type="button"
                         disabled={submitted}
                         onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: optIdx }))}
-                        className={`rounded-xl border px-4 py-3 text-start text-sm transition-colors ${stateClass}`}
+                        className={`rounded-xl border px-4 py-3 text-start text-sm transition-colors [&_p]:inline ${stateClass}`}
                       >
-                        {opt}
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                          {opt}
+                        </ReactMarkdown>
                       </button>
                     );
                   })}
                 </div>
 
                 {submitted && (
-                  <p className="rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
+                  <div className="rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground [&_p]:inline">
                     <strong className="text-foreground">التفسير: </strong>
-                    {q.explanation}
-                  </p>
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                      {q.explanation}
+                    </ReactMarkdown>
+                  </div>
                 )}
               </Card>
             );

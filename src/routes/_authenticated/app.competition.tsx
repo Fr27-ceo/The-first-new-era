@@ -110,7 +110,7 @@ function Competition() {
                   أفضل الطلاب نشاطًا وتقدمًا خلال هذا الأسبوع
                 </p>
               </div>
-              <StatusBadge tone="live" label="تحدي الأسبوع" />
+              <StatusBadge tone="verified">تحدي الأسبوع</StatusBadge>
             </div>
             {board.length === 0 ? (
               <EmptyState
