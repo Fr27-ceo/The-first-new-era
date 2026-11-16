@@ -1,4 +1,4 @@
-/** إعدادات المساعد الذكي (للسيرفر فقط، لا تستوردها من كود المتصفح). */
+/** إعدادات المساعد الذكي (للسيرفر فقط). */
 export const AI_LIMITS = {
   maxMessageChars: 2000,
   maxHistoryMessages: 12,
@@ -8,32 +8,17 @@ export const AI_LIMITS = {
 
 export type ProviderChoice =
   | { kind: "gemini"; apiKey: string; model: string }
-  | { kind: "anthropic"; apiKey: string; model: string }
   | { kind: "none" };
 
-/** يفضّل Gemini عند وجود GEMINI_API_KEY، أو Anthropic عند وجود ANTHROPIC_API_KEY */
+/** Gemini هو المزوّد الوحيد المدعوم. */
 export function resolveProvider(): ProviderChoice {
-  const geminiKey = (
-    process.env["GEMINI_API_KEY"] ||
-    process.env["GOOGLE_GENERATIVE_AI_API_KEY"] ||
-    ""
+  const apiKey = (
+    process.env["GEMINI_API_KEY"] || process.env["GOOGLE_GENERATIVE_AI_API_KEY"] || ""
   ).trim();
-  if (geminiKey) {
-    return {
-      kind: "gemini",
-      apiKey: geminiKey,
-      model: (process.env["GEMINI_MODEL"] || "gemini-3.8-flash").trim(),
-    };
-  }
-
-  const anthropicKey = (process.env["ANTHROPIC_API_KEY"] || "").trim();
-  if (anthropicKey) {
-    return {
-      kind: "anthropic",
-      apiKey: anthropicKey,
-      model: (process.env["ANTHROPIC_MODEL"] || "claude-sonnet-5-5").trim(),
-    };
-  }
-
-  return { kind: "none" };
+  if (!apiKey) return { kind: "none" };
+  return {
+    kind: "gemini",
+    apiKey,
+    model: (process.env["GEMINI_MODEL"] || "gemini-2.5-flash").trim(),
+  };
 }

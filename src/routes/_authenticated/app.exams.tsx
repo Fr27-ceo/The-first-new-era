@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { toast } from "sonner";
 import { Card, PageHeader } from "@/components/common";
-import { generateAiExam, type AiExamQuestion } from "@/features/exams/exams.functions";
+import { generateAiExam, saveExamResult, listSavedExams, type AiExamQuestion } from "@/features/exams/exams.functions";
 import { sanitizeSvg } from "@/lib/sanitize-svg";
 
 export const Route = createFileRoute("/_authenticated/app/exams")({
@@ -24,6 +24,10 @@ export const Route = createFileRoute("/_authenticated/app/exams")({
 
 function ExamsPage() {
   const runGenerateExam = useServerFn(generateAiExam);
+  const persistExamResult = useServerFn(saveExamResult);
+  const getSavedExams = useServerFn(listSavedExams);
+  const [examId, setExamId] = useState<string | null>(null);
+  const [history, setHistory] = useState<Array<{id:string;subject:string;exam_title:string;score:number|null;submitted:boolean;created_at:string}>>([]);
   const [subject, setSubject] = useState<"physics" | "chemistry">("physics");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [count, setCount] = useState<number>(5);
@@ -34,6 +38,11 @@ function ExamsPage() {
   const [questions, setQuestions] = useState<AiExamQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [submitted, setSubmitted] = useState(false);
+
+  async function refreshHistory() {
+    try { const rows = await getSavedExams(); setHistory(rows as typeof history); } catch { /* history remains optional */ }
+  }
+  useEffect(() => { void refreshHistory(); }, []);
 
   async function startExam(e: React.FormEvent) {
     e.preventDefault();
@@ -46,8 +55,10 @@ function ExamsPage() {
         toast.error(res.message);
         return;
       }
+      setExamId(res.examId);
       setExamTitle(res.examTitle);
       setQuestions(res.questions);
+      await refreshHistory();
       setAnswers({});
       setSubmitted(false);
     } catch {
@@ -58,6 +69,15 @@ function ExamsPage() {
   }
 
   const score = questions.reduce((acc, q) => (answers[q.id] === q.correctIndex ? acc + 1 : acc), 0);
+  async function submitExam() {
+    if (!examId) return;
+    try {
+      await persistExamResult({ data: { examId, answers, score } });
+      setSubmitted(true);
+      await refreshHistory();
+      toast.success("تم حفظ إجابتك ونتيجتك في سجل الامتحانات.");
+    } catch { toast.error("تعذّر حفظ النتيجة. حاول مرة أخرى."); }
+  }
 
   return (
     <div className="space-y-6">
@@ -128,6 +148,11 @@ function ExamsPage() {
             </button>
           </div>
         </form>
+      </Card>
+
+      <Card className="space-y-3 p-4">
+        <div className="flex items-center justify-between"><h2 className="font-semibold">سجل امتحاناتك</h2><span className="text-xs text-muted-foreground">آخر 20 امتحانًا</span></div>
+        {history.length ? <div className="space-y-2">{history.map((item)=><div key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/40 p-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{item.exam_title}</p><p className="text-xs text-muted-foreground">{item.subject==="physics"?"فيزياء":"كيمياء"} · {new Date(item.created_at).toLocaleDateString("ar-EG")}</p></div><span className="shrink-0 text-xs text-muted-foreground">{item.submitted && item.score!==null?`النتيجة: ${item.score}`:"لم يُصحح بعد"}</span></div>)}</div> : <p className="text-xs text-muted-foreground">ستظهر امتحاناتك هنا بعد إنشاء أول امتحان.</p>}
       </Card>
 
       {questions.length > 0 && (
@@ -204,7 +229,7 @@ function ExamsPage() {
           {!submitted && (
             <button
               type="button"
-              onClick={() => setSubmitted(true)}
+              onClick={submitExam}
               className="press rounded-xl bg-brand px-6 py-3 font-medium text-primary-foreground"
             >
               تصحيح الامتحان

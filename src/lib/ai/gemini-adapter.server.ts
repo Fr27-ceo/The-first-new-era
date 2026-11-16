@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import type { AiTutorProvider, ChatMessage } from "./types";
 import type { ProviderChoice } from "./config.server";
-import { AiProviderError } from "./claude-adapter.server";
+import { AiProviderError } from "./provider-error";
 
-const FALLBACK_MODELS = ["gemini-flash-latest", "gemini-3.1-flash-lite"];
+const FALLBACK_MODELS = ["gemini-2.5-flash-lite", "gemini-flash-latest"];
 
 function isModelUnavailableError(err: unknown): boolean {
   const status =
@@ -74,8 +74,11 @@ export function createGeminiProvider(
           return await callModel(modelName, system, messages, maxOutputTokens);
         } catch (err) {
           lastErr = err;
-          if (isModelUnavailableError(err)) {
-            console.warn(`[Gemini] Model ${modelName} unavailable, trying fallback...`);
+          const status =
+            (err as { status?: number; statusCode?: number })?.status ??
+            (err as { statusCode?: number })?.statusCode;
+          if (isModelUnavailableError(err) || status === 503 || status === 429) {
+            console.warn(`[Gemini] Model ${modelName} unavailable or busy; trying fallback...`);
             continue;
           }
           break;

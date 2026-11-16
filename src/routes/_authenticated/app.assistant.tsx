@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import { askTutor, getAiStatus } from "@/lib/ai/tutor.functions";
+import { askTutor, getAiStatus, listTutorConversations, loadTutorConversation, deleteTutorConversation } from "@/lib/ai/tutor.functions";
 import type { ChatMessage, TutorLength, TutorStyle } from "@/lib/ai/types";
 import { sanitizeSvg } from "@/lib/sanitize-svg";
 import { Card, PageHeader, SkeletonBlock, StatusBadge } from "@/components/common";
@@ -32,7 +32,12 @@ const styles: { v: TutorStyle; l: string }[] = [
 function Assistant() {
   const status = useServerFn(getAiStatus);
   const ask = useServerFn(askTutor);
+  const listConversations = useServerFn(listTutorConversations);
+  const loadConversation = useServerFn(loadTutorConversation);
+  const removeConversation = useServerFn(deleteTutorConversation);
   const { data: st, isLoading } = useQuery({ queryKey: ["ai", "status"], queryFn: () => status() });
+  const { data: conversations = [], refetch: refreshConversations } = useQuery({ queryKey: ["ai", "conversations"], queryFn: () => listConversations() });
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [style, setStyle] = useState<TutorStyle>("balanced");
@@ -56,9 +61,12 @@ function Assistant() {
     setError(null);
     setBusy(true);
     try {
-      const r = await ask({ data: { messages: next, style, length, subject } });
-      if (r.ok) setMessages([...next, { role: "assistant", content: r.text }]);
-      else setError(r.message);
+      const r = await ask({ data: { messages: next, style, length, subject, conversationId } });
+      if (r.ok) {
+        setMessages([...next, { role: "assistant", content: r.text }]);
+        if (r.conversationId) setConversationId(r.conversationId);
+        await refreshConversations();
+      } else setError(r.message);
     } catch {
       setError("تعذّر الاتصال بالمساعد. حاول مرة أخرى.");
     } finally {
@@ -66,13 +74,45 @@ function Assistant() {
     }
   }
 
+  async function openConversation(id: string) {
+    try {
+      const result = await loadConversation({ data: { conversationId: id } });
+      setConversationId(id);
+      setMessages(result.messages.map((m) => ({ role: m.role, content: m.content })));
+      setError(null);
+    } catch { setError("تعذّر فتح المحادثة المحفوظة."); }
+  }
+
+  function newConversation() {
+    setConversationId(null);
+    setMessages([]);
+    setError(null);
+  }
+
+  async function removeSavedConversation(id: string) {
+    if (!window.confirm("هل تريد حذف هذه المحادثة نهائيًا؟")) return;
+    try {
+      await removeConversation({ data: { conversationId: id } });
+      if (conversationId === id) newConversation();
+      await refreshConversations();
+    } catch { setError("تعذّر حذف المحادثة."); }
+  }
+
   return (
-    <div className="mx-auto flex max-w-4xl flex-col">
+    <div className="mx-auto flex max-w-5xl flex-col">
       <PageHeader
         title="المساعد الذكي"
         subtitle="مساعد متكيف مع مستواك يشرح المفاهيم ويستخرج الرسومات التوضيحية."
         icon="assistant"
       />
+
+      <Card className="mb-4 space-y-3 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><h2 className="font-semibold">محادثاتك السابقة</h2><p className="text-xs text-muted-foreground">تُحفظ تلقائيًا في حسابك ويمكنك الرجوع إليها لاحقًا.</p></div>
+          <button type="button" onClick={newConversation} className="press rounded-xl border border-primary/40 bg-primary/10 px-4 py-2 text-xs font-medium text-primary">+ محادثة جديدة</button>
+        </div>
+        {conversations.length > 0 ? <div className="flex gap-2 overflow-x-auto pb-1">{conversations.map((c) => <div key={c.id} className={`flex min-w-44 items-center gap-2 rounded-xl border p-2 ${conversationId===c.id?"border-primary bg-primary/10":"border-border bg-background/40"}`}><button type="button" onClick={()=>openConversation(c.id)} className="min-w-0 flex-1 text-start"><span className="block truncate text-xs font-medium">{c.title}</span><span className="text-[10px] text-muted-foreground">{new Date(c.updated_at).toLocaleDateString("ar-EG")}</span></button><button type="button" aria-label="حذف المحادثة" onClick={()=>removeSavedConversation(c.id)} className="rounded-lg px-2 py-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">×</button></div>)}</div> : <p className="text-xs text-muted-foreground">لا توجد محادثات محفوظة بعد.</p>}
+      </Card>
 
       <Card className="mb-4 space-y-3 p-4">
         <div className="flex flex-wrap items-center gap-2">
